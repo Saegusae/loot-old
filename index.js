@@ -72,7 +72,7 @@ module.exports = function Loot(dispatch) {
 
     function tryLootAll() {
         for(let item in loot) {
-            if(Math.abs(loot[item].x - location.x2) < 250 && Math.abs(loot[item].y - location.y2) < 250)
+            if(Math.abs(loot[item].x - location.x1) < 100 && Math.abs(loot[item].y - location.y1) < 100)
                 dispatch.toServer('C_TRY_LOOT_DROPITEM', 1, {
                     id: loot[item].id
                 });
