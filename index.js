@@ -1,23 +1,31 @@
 module.exports = function Loot(dispatch) {
 
     let auto = false,
+        enabled = true,
         location;
 
     let loot = {};
 
     let commands = {
-        loot: {
-            alias: ['all', 'loot', 'drop', 'drops'],
-            run: function() {
-                message('Trying to loot all items in 150 range');
-                tryLootAll();
-            }
-        },
         auto: {
             alias: ['auto', 'autoloot', 'toggle'],
             run: function() {
                 auto = !auto;
                 message(`Autoloot mode toggled: ${auto}`);
+            }
+        },
+        enable: {
+            alias: ['enable', 'on'],
+            run: function() {
+                enabled = true;
+                message('Easy looting is enabled.');
+            }
+        },
+        disable: {
+            alias: ['disable', 'off'],
+            run: function() {
+                enabled = false;
+                message('Easy looting is disabled.');
             }
         }
     }
@@ -53,15 +61,18 @@ module.exports = function Loot(dispatch) {
             tryLootAll();
         }
     });
+
+    dispatch.hook('C_TRY_LOOT_DROPITEM', 1, (event) => {
+        if(enabled) tryLootAll();      
+    });
     
     dispatch.hook('S_DESPAWN_DROPITEM', 1, (event) => {
-        if(event.id.toString() in loot)
-            delete loot[event.id.toString()];
+        if(event.id.toString() in loot) delete loot[event.id.toString()];    
     });
 
     function tryLootAll() {
         for(let item in loot) {
-            if(Math.abs(loot[item].x - location.x2) < 150 && Math.abs(loot[item].y - location.y2) < 150)
+            if(Math.abs(loot[item].x - location.x2) < 250 && Math.abs(loot[item].y - location.y2) < 250)
                 dispatch.toServer('C_TRY_LOOT_DROPITEM', 1, {
                     id: loot[item].id
                 });
