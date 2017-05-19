@@ -4,10 +4,13 @@ A TERA utility to auto loot the items on the ground, as soon as they drop or wit
 ## Commands:
 
 * **!loot**
-    * **Arguments:** auto, all
+    * **Arguments:** auto, on, off
 
 * **!loot auto:** 
     * Toggles auto loot on and off.
 
-* **!loot all:**
-    * Loots every drop 150 units around your character.
+* **!loot on:**
+    * Upon looting an item, attempts to loot everything in a 250 unit radius.
+
+* **!loot off:**
+    * Disables looting in range.
