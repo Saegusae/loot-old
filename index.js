@@ -1,8 +1,8 @@
 module.exports = function Loot(dispatch) {
 
-    let auto = true,
+    let auto = false,
         enabled = true,
-        lootInterval = setInterval(tryLootAll,1000),
+        lootInterval,
         location;
 
     let loot = {};
@@ -14,10 +14,10 @@ module.exports = function Loot(dispatch) {
                 auto = !auto;
                 message(`Autoloot mode toggled: ${auto}`);
                 if(auto){
-					lootInterval = setInterval(tryLootAll,1000)
+					lootInterval = setInterval(tryLootAll, 250);
 				}
 				else
-					clearInterval(lootInterval)
+					clearInterval(lootInterval);
             }
         },
         enable: {
@@ -74,10 +74,11 @@ module.exports = function Loot(dispatch) {
 
     function tryLootAll() {
         for(let item in loot) {
-            if(Math.abs(loot[item].x - location.x1) < 120 && Math.abs(loot[item].y - location.y1) < 120)
-                dispatch.toServer('C_TRY_LOOT_DROPITEM', 1, {
-                    id: loot[item].id
-                });
+            if(location)
+                if(Math.abs(loot[item].x - location.x1) < 120 && Math.abs(loot[item].y - location.y1) < 120)
+                    dispatch.toServer('C_TRY_LOOT_DROPITEM', 1, {
+                        id: loot[item].id
+                    });
         }
     }
 
