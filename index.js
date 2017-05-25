@@ -5,7 +5,7 @@ module.exports = function Loot(dispatch) {
         lootInterval,
         location;
 
-    let blacklist = [8000, 8001, 8002, 8005, 8017];
+    let blacklist = [8000, 8001, 8002, 8005, 8018, 8025, 8023];
 
     let loot = {};
 
