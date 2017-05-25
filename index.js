@@ -5,6 +5,8 @@ module.exports = function Loot(dispatch) {
         lootInterval,
         location;
 
+    let blacklist = [8000, 8001, 8002, 8005, 8017];
+
     let loot = {};
 
     let commands = {
@@ -61,8 +63,8 @@ module.exports = function Loot(dispatch) {
     });
 
     dispatch.hook('S_SPAWN_DROPITEM', 1, (event) => {
-        loot[event.id.toString()] = event;
-    });
+        if(!(blacklist.indexOf(event.item) > -1)) loot[event.id.toString()] = event;
+    }); 
 
     dispatch.hook('C_TRY_LOOT_DROPITEM', 1, (event) => {
         if(enabled) tryLootAll();      
