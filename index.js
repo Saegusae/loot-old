@@ -1,11 +1,13 @@
+const config = require('./config.json');
+
 module.exports = function Loot(dispatch) {
 
-    let auto = false,
-        enabled = true,
-        lootInterval,
+    let auto = config.modes.auto || false,
+        enabled = config.modes.easy || true,
+        lootInterval = auto ? setInterval(tryLootAll, 250) : null,
         location;
 
-    let blacklist = [8000, 8001, 8002, 8005, 8018, 8025, 8023];
+    let blacklist = config.blacklist || [8000, 8001, 8002, 8005, 8018, 8025, 8023];
 
     let loot = {};
 
