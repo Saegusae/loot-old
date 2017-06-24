@@ -76,6 +76,10 @@ module.exports = function Loot(dispatch) {
         if(event.id.toString() in loot) delete loot[event.id.toString()];    
     });
 
+    dispatch.hook('S_SYSTEM_MESSAGE', 1, (event) => {
+        if(event.message === '@41') return false;  // Block "That isn't yours." system message.
+    });
+
     function tryLootAll() {
         for(let item in loot) {
             if(location)
