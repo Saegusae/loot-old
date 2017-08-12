@@ -98,24 +98,27 @@ module.exports = function Loot(dispatch) {
         }
     });
 
+    dispatch.hook('S_SYSTEM_MESSAGE', 1, (event) => {
+        if(event.message === '@41') return false;  // Block "That isn't yours." system message.
+    });
 
     function garbageCollect(){
-        if(autotrash) {
             dispatch.hook('S_INVEN', 5, event => {
-                if(event.first) inventory = []
-                else if(!inventory) return
+                if(autotrash) {
+                    if(event.first) inventory = []
+                    else if(!inventory) return
 
-                for(let item of event.items) inventory.push(item)
+                    for(let item of event.items) inventory.push(item)
 
-                if(!event.more) {
-                    for(let item of inventory) {
-                        if(item.slot < 40) continue // First 40 slots are reserved for equipment, etc.
-                        else if(trash.includes(item.item)) deleteItem(item.slot, item.amount)
+                    if(!event.more) {
+                        for(let item of inventory) {
+                            if(item.slot < 40) continue // First 40 slots are reserved for equipment, etc.
+                            else if(trash.includes(item.item)) deleteItem(item.slot, item.amount)
+                        }
+                        inventory = null
                     }
-                    inventory = null
                 }
-            })             
-        }    
+            })                
     }
 
 
