@@ -91,15 +91,11 @@ module.exports = function Loot(dispatch) {
         if(event.id.toString() in loot) delete loot[event.id.toString()];    
     });
 
-
     dispatch.hook('S_SYSTEM_MESSAGE_LOOT_ITEM', 1, event => {
+        if(event.message === '@41') return false;  // Block "That isn't yours." system message.
         if(trash.includes(event.item)) {
             garbageCollect();
         }
-    });
-
-    dispatch.hook('S_SYSTEM_MESSAGE', 1, (event) => {
-        if(event.message === '@41') return false;  // Block "That isn't yours." system message.
     });
 
     function garbageCollect(){
