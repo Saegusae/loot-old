@@ -3,13 +3,17 @@ const config = require('./config.json');
 module.exports = function Loot(dispatch) {
 
     let auto = config.modes.auto || false,
+        autotrash = config.modes.trash || false,
         enabled = config.modes.easy || true,
         lootInterval = auto ? setInterval(tryLootAll, 250) : null,
         location;
 
-    let blacklist = config.blacklist || [8000, 8001, 8002, 8005, 8018, 8025, 8023];
+    let blacklist = config.blacklist.concat(config.motes);
+    let trash = config.trash.concat(config.crystals.concat(config.strongboxes));
 
+    let cid = null;
     let loot = {};
+    let inventory = null;
 
     let commands = {
         auto: {
@@ -37,8 +41,19 @@ module.exports = function Loot(dispatch) {
                 enabled = false;
                 message('Easy looting is disabled.');
             }
+        },
+        autotrash: {
+            alias: ['autotrash', 'trash'],
+            run: function() {
+                autotrash = !autotrash;
+
+                message('Autotrash toggled: ' + (autotrash ? 'on' : 'off'));
+                garbageCollect();
+            }
         }
     }
+
+    dispatch.hook('S_LOGIN', 1, event => { ({cid} = event) })
 
     dispatch.hook('C_CHAT', 1, (event) => {
         if(!event.message.includes('!loot'))
@@ -76,9 +91,40 @@ module.exports = function Loot(dispatch) {
         if(event.id.toString() in loot) delete loot[event.id.toString()];    
     });
 
-    dispatch.hook('S_SYSTEM_MESSAGE', 1, (event) => {
+    dispatch.hook('S_SYSTEM_MESSAGE_LOOT_ITEM', 1, event => {
         if(event.message === '@41') return false;  // Block "That isn't yours." system message.
+        if(trash.includes(event.item)) {
+            garbageCollect();
+        }
     });
+
+    function garbageCollect(){
+            dispatch.hook('S_INVEN', 5, event => {
+                if(autotrash) {
+                    if(event.first) inventory = []
+                    else if(!inventory) return
+
+                    for(let item of event.items) inventory.push(item)
+
+                    if(!event.more) {
+                        for(let item of inventory) {
+                            if(item.slot < 40) continue // First 40 slots are reserved for equipment, etc.
+                            else if(trash.includes(item.item)) deleteItem(item.slot, item.amount)
+                        }
+                        inventory = null
+                    }
+                }
+            })                
+    }
+
+
+    function deleteItem(slot, amount) {
+        dispatch.toServer('C_DEL_ITEM', 1, {
+            cid: cid,
+            slot: slot - 40,
+            amount
+        })
+    }
 
     function tryLootAll() {
         for(let item in loot) {
@@ -98,7 +144,7 @@ module.exports = function Loot(dispatch) {
             gm: 0,
             unk2: 0,
             authorName: '',
-            message: ' (autoloot) ' + msg
+            message: ' (Autoloot) ' + msg
         });
     }
 
